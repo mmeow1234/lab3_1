@@ -1,0 +1,7 @@
+Package: reverse-words
+Version: 1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Vladislava Stasyukevich
+Description: Utility to reverse words in a string
