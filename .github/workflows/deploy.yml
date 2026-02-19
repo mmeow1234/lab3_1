@@ -1,0 +1,39 @@
+name: Deploy
+on:
+  push:
+    branches: [ main ] # Проверь, что твоя ветка называется main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        [cite_start]uses: actions/checkout@v3 [cite: 46]
+      - name: Build
+        [cite_start]run: make [cite: 48]
+      - name: Build .deb package
+        [cite_start]run: chmod +x scripts/package.sh && ./scripts/package.sh [cite: 50]
+      - name: Upload .deb artifact
+        [cite_start]uses: actions/upload-artifact@v4 [cite: 54]
+        with:
+          name: deb-package
+          [cite_start]path: reverse-words.deb [cite: 57]
+
+  deploy:
+    runs-on: ubuntu-latest
+    [cite_start]needs: build [cite: 60]
+    steps:
+      - name: Checkout code
+        [cite_start]uses: actions/checkout@v3 [cite: 63]
+      - name: Download .deb artifact
+        [cite_start]uses: actions/download-artifact@v4 [cite: 65]
+        with:
+          name: deb-package
+          [cite_start]path: . [cite: 68]
+      - name: Build Docker image
+        [cite_start]run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/reverse-words:1.0 . [cite: 70]
+      - name: Login to DockerHub
+        [cite_start]run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin [cite: 74]
+      - name: Push Docker image
+        [cite_start]run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/reverse-words:1.0 [cite: 76]
